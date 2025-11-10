@@ -2,6 +2,20 @@
 
 Learn about the vite.config.ts, tsconfig.node.json, tsconfig.json, and tsconfig.app.json files
 
+# IMPORTS
+
+Convención de orden de imports más profesional
+
+Imports de librerías externas (React, react-router-dom, etc.)
+
+Imports de utilidades, hooks, helpers globales
+
+Imports de configuraciones o constantes de tu proyecto (routes.ts, config.ts)
+
+Imports de componentes locales (guards, layouts, componentes de UI)
+
+Imports de estilos (.css, .scss, .styled.ts)
+
 # Prettier
 
 Since the Prettier extension is already installed in Visual Studio Code, it's not necessary to add the library to the Package.json file. The project includes the .prettierrc file, so the Prettier configuration is defined there; otherwise, it uses the extension's configuration.
