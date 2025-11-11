@@ -18,7 +18,7 @@ export const PrivateRoute: React.FC<PrivateRouteProps> = ({ element }) => {
   //}verbatimModuleSyntax
 
   if (!isAuthenticated) {
-    return <Navigate state={{ redirectTo: location.pathname }} to={pahtRoutes.LOGIN} />;
+    return <Navigate state={{ redirectTo: location.pathname }} to={pahtRoutes.SIGNIN} />;
   }
 
   return element;
