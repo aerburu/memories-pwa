@@ -20,7 +20,7 @@ interface State {
   errorEmail: string;
   errorPassword: string;
   isSubmitting?: boolean;
-  isLoginError?: boolean;
+  isSignInError?: boolean;
 }
 
 const initialState: State = {
@@ -29,7 +29,7 @@ const initialState: State = {
   errorEmail: '',
   errorPassword: '',
   isSubmitting: false,
-  isLoginError: false
+  isSignInError: false
 };
 
 export const SignIn: React.FC = () => {
@@ -37,11 +37,11 @@ export const SignIn: React.FC = () => {
   const [form, setForm] = useState<State>(initialState);
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleClickShowPassword = () => setShowPassword(show => !show);
-
   const onForgotPassword = () => navigate(routes.FORGOT_PASSWORD);
 
   const onSignUp = () => navigate(routes.SIGNUP);
+
+  const handleClickShowPassword = () => setShowPassword(show => !show);
 
   const checkIsValidEmail = () => {
     const validateFormat = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
