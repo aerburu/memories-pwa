@@ -1,8 +1,8 @@
 import { Components, Theme } from '@mui/material/styles';
 
 export const ButtonOverrides: Components<Theme>['MuiButton'] = {
-  styleOverrides: {
-    root: {
+  defaultProps: {
+    style: {
       textTransform: 'none'
     }
   },
