@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { HashRouter as Router, Route, Routes } from 'react-router';
 
-import { ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider, CssBaseline } from '@mui/material';
 
 import { routesConfig } from 'views/_conf';
 
@@ -15,6 +15,7 @@ export const Main: React.FC = () => {
   return (
     <Styled.Wrapper>
       <ThemeProvider theme={theme}>
+        <CssBaseline />
         <Router>
           <Suspense fallback={<div>Cargando...</div>}>
             <Routes>

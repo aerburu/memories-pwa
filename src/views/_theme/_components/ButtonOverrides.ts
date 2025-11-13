@@ -1,17 +1,25 @@
-import { Theme } from '@mui/material/styles';
+import { Components, Theme } from '@mui/material/styles';
 
-export const ButtonOverrides = {
+export const ButtonOverrides: Components<Theme>['MuiButton'] = {
   styleOverrides: {
-    containedPrimary: ({ theme }: { theme: Theme }) => ({
-      backgroundColor: theme.palette.primary.main, // fondo azul
-      color: theme.palette.primary.contrastText, // texto blanco
-      '&:hover': {
-        backgroundColor: theme.palette.primary.dark // hover azul oscuro
-      },
-      '&.Mui-disabled': {
-        backgroundColor: theme.palette.primary.main, // fondo azul incluso deshabilitado
-        color: theme.palette.primary.contrastText // texto blanco
-      }
-    })
-  }
+    root: {
+      textTransform: 'none'
+    }
+  },
+  variants: [
+    {
+      props: { variant: 'contained', color: 'primary' },
+      style: ({ theme }) => ({
+        backgroundColor: theme.palette.primary.main,
+        color: theme.palette.primary.contrastText
+      })
+    },
+    {
+      props: { variant: 'contained', color: 'secondary' },
+      style: ({ theme }) => ({
+        backgroundColor: theme.palette.background.paper,
+        color: theme.palette.primary.contrastText
+      })
+    }
+  ]
 };

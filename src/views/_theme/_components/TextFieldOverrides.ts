@@ -17,7 +17,7 @@ export const TextFieldOverrides = {
 
       '& .MuiOutlinedInput-root': {
         '& .MuiOutlinedInput-notchedOutline': {
-          borderColor: theme.palette.text.primary
+          borderColor: theme.palette.background.paper
         },
 
         '&:hover .MuiOutlinedInput-notchedOutline': {

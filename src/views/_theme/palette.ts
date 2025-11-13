@@ -15,8 +15,8 @@ export const palette: PaletteOptions = {
     contrastText: '#ffffff'
   },
   background: {
-    default: '#121212', // Fondo principal válido
-    paper: '#1e1e1e' // Fondos de tarjetas, modales, inputs
+    default: '#1C1C1C', // Fondo principal válido
+    paper: '#464646' // Fondos de tarjetas, modales, inputs
   },
   text: {
     primary: '#ffffff', // Texto principal

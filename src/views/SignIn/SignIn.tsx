@@ -1,6 +1,14 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 
-import { Box, Button, TextField } from '@mui/material';
+import { Box, Button, Divider, InputAdornment, Link, TextField, Typography } from '@mui/material';
+import GoogleIcon from '@mui/icons-material/Google';
+import LockIcon from '@mui/icons-material/Lock';
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+
+import { routes } from 'views/_conf';
 
 import * as Styled from './SignIn.styled';
 
@@ -25,42 +33,47 @@ const initialState: State = {
 };
 
 export const SignIn: React.FC = () => {
+  const navigate = useNavigate();
   const [form, setForm] = useState<State>(initialState);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const validateEmail = (email: string): string => {
+  const handleClickShowPassword = () => setShowPassword(show => !show);
+
+  const onForgotPassword = () => navigate(routes.FORGOT_PASSWORD);
+
+  const onSignUp = () => navigate(routes.SIGNUP);
+
+  const checkIsValidEmail = () => {
     const validateFormat = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-    if (!email.trim()) return 'El email es obligatorio';
-    if (!validateFormat(email)) return 'El email no es válido';
-    return '';
+    setForm(prevForm => {
+      return {
+        ...prevForm,
+        errorEmail: !form.email.trim()
+          ? 'El email es obligatorio'
+          : !validateFormat(form.email)
+          ? 'El email no es válido'
+          : ''
+      };
+    });
   };
 
-  const validatePassword = (password: string): string => {
-    if (!password.trim()) return 'La contraseña es obligatoria';
-    return '';
-  };
+  const checkIsValidPassword = () =>
+    setForm(prevForm => {
+      return { ...prevForm, errorPassword: !form.password.trim() ? 'La contraseña es obligatoria' : '' };
+    });
 
-  const validateField = (field: 'email' | 'password') => {
-    const error = field === 'email' ? validateEmail(form.email) : validatePassword(form.password);
-
-    setForm(prev => ({
-      ...prev,
-      [field === 'email' ? 'errorEmail' : 'errorPassword']: error
-    }));
-
-    return error;
-  };
+  const isValidForm =
+    form.errorEmail === '' && form.errorPassword === '' && form.email.length > 0 && form.password.length > 0;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const emailError = validateField('email');
-    const passwordError = validateField('password');
-
-    console.log('emailError -> ', emailError);
-    console.log('passwordError -> ', passwordError);
-
-    if (emailError || passwordError) return;
+    if (!isValidForm) {
+      checkIsValidEmail();
+      checkIsValidPassword();
+      return;
+    }
 
     console.log('OK');
   };
@@ -72,11 +85,20 @@ export const SignIn: React.FC = () => {
         <TextField
           error={Boolean(form.errorEmail)}
           helperText={form.errorEmail}
-          label="Correo electrónico"
-          onBlur={() => validateField('email')}
+          label={!form.email.trim() ? '' : 'Correo electrónico'}
+          placeholder="Correo electrónico"
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <MailOutlineIcon />
+                </InputAdornment>
+              )
+            }
+          }}
+          onBlur={() => checkIsValidEmail()}
           onChange={e => setForm({ ...form, email: e.target.value })}
           onFocus={() => setForm(prevForm => ({ ...prevForm, errorEmail: '', isLoginError: false }))}
-          placeholder=""
           type="text"
           value={form.email}
           variant="outlined"
@@ -85,24 +107,50 @@ export const SignIn: React.FC = () => {
           autoComplete="password"
           error={Boolean(form.errorPassword)}
           helperText={form.errorPassword}
-          label="Contraseña"
-          onBlur={() => validateField('password')}
+          label={!form.password.trim() ? '' : 'Contraseña'}
+          placeholder="Contraseña"
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <LockIcon />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment onClick={handleClickShowPassword} position="end">
+                  {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                </InputAdornment>
+              )
+            }
+          }}
+          onBlur={() => checkIsValidPassword()}
           onChange={e => setForm({ ...form, password: e.target.value })}
           onFocus={() => setForm(prevForm => ({ ...prevForm, errorPassword: '', isLoginError: false }))}
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           value={form.password}
           variant="outlined"
         />
 
-        {!form.isSubmitting && form.isLoginError && (
-          <Styled.FormErrorMessage data-cy="login-error-text">
-            Error en el inicio de sesión, por favor intentelo de nuevo
-          </Styled.FormErrorMessage>
-        )}
-
         <Button color="primary" type="submit" variant="contained" sx={{ padding: '1rem' }}>
           Iniciar Sesión
         </Button>
+
+        <Link onClick={onForgotPassword} underline="none" sx={{ alignSelf: 'end' }}>
+          ¿Olvido su contraseña?
+        </Link>
+
+        <Divider> o </Divider>
+
+        <Button color="secondary" startIcon={<GoogleIcon />} variant="contained" sx={{ padding: '1rem' }}>
+          Iniciar sesión con Google
+        </Button>
+
+        <Styled.SignUpWrapper>
+          <Typography>¿No tienes cuenta?</Typography>
+          <Link onClick={onSignUp} underline="none">
+            ¡Regístrate!
+          </Link>
+        </Styled.SignUpWrapper>
       </Box>
     </Styled.Wrapper>
   );
