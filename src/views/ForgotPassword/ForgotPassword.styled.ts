@@ -12,11 +12,15 @@ export const FormErrorMessage = styled.div`
   margin: 1rem 0;
 `;
 
-export const SignUpWrapper = styled.div`
+export const SignInWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
+`;
+
+export const DescriptionWrapper = styled.div`
+  margin-bottom: 2rem;
 `;
 
 export const Wrapper = styled.div`

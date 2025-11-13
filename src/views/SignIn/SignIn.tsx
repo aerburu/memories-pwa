@@ -136,7 +136,7 @@ export const SignIn: React.FC = () => {
         </Button>
 
         <Link onClick={onForgotPassword} underline="none" sx={{ alignSelf: 'end' }}>
-          ¿Olvido su contraseña?
+          ¿Has olvidado tu contraseña
         </Link>
 
         <Divider> o </Divider>
