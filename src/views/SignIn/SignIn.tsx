@@ -83,7 +83,7 @@ export const SignIn: React.FC = () => {
         password: form.password
       });
 
-      if (error) {
+      if (error?.message == 'Invalid login credentials') {
         setForm({
           ...initialState,
           email: form.email,
