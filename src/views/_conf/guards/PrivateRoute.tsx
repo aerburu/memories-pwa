@@ -1,5 +1,7 @@
 import { JSX } from 'react';
-import { Navigate /*, useLocation */ } from 'react-router';
+import { Navigate, useLocation } from 'react-router';
+
+import { useAuth } from 'views/_functions/contexts/AuthContext';
 
 import { routes as pahtRoutes } from 'views/_conf/routes';
 
@@ -8,17 +10,11 @@ interface PrivateRouteProps {
 }
 
 export const PrivateRoute: React.FC<PrivateRouteProps> = ({ element }) => {
-  //const location = useLocation();
+  const location = useLocation();
+  const { session } = useAuth();
 
-  const isAuthenticated = false;
-
-  // TODO: Comprobar si hay sesion iniciada y en caso de que no haya redirigir a Login
-  //if (!securityService.hasTokens()) {
-  //  return <Navigate state={{ redirectTo: location.pathname }} to={pahtRoutes.LOGIN} />;
-  //}verbatimModuleSyntax
-
-  if (!isAuthenticated) {
-    return <Navigate state={{ redirectTo: location.pathname }} to={pahtRoutes.SIGNIN} />;
+  if (!session) {
+    return <Navigate state={{ redirectTo: location.pathname }} to={pahtRoutes.SIGNIN} replace />;
   }
 
   return element;

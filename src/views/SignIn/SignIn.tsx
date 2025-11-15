@@ -93,7 +93,7 @@ export const SignIn: React.FC = () => {
         return;
       }
 
-      // TODO: Redirigir y autentication
+      navigate(routes.PROFILE, { replace: true });
     } catch {
       setForm({
         ...initialState,
