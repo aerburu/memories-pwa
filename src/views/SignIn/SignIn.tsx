@@ -1,18 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { Box, Button, Divider, InputAdornment, Link, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, Collapse, Divider, InputAdornment, Link, TextField, Typography } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import LockIcon from '@mui/icons-material/Lock';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
+import { supabaseClient } from 'infrastructure/supabase/supabaseClient';
+
 import { routes } from 'views/_conf';
 
 import * as Styled from './SignIn.styled';
-
-// TODO: Como gestionar el isSubmitting y el isLoginError
 
 interface State {
   email: string;
@@ -21,6 +21,7 @@ interface State {
   errorPassword: string;
   isSubmitting?: boolean;
   isSignInError?: boolean;
+  signInErrorMessage: string;
 }
 
 const initialState: State = {
@@ -29,7 +30,8 @@ const initialState: State = {
   errorEmail: '',
   errorPassword: '',
   isSubmitting: false,
-  isSignInError: false
+  isSignInError: false,
+  signInErrorMessage: ''
 };
 
 export const SignIn: React.FC = () => {
@@ -75,7 +77,31 @@ export const SignIn: React.FC = () => {
       return;
     }
 
-    console.log('OK');
+    try {
+      const { error } = await supabaseClient.auth.signInWithPassword({
+        email: form.email,
+        password: form.password
+      });
+
+      if (error) {
+        setForm({
+          ...initialState,
+          email: form.email,
+          isSignInError: true,
+          signInErrorMessage: 'El correo electrónico del usuario o la contraseña son incorrectos.'
+        });
+        return;
+      }
+
+      // TODO: Redirigir y autentication
+    } catch {
+      setForm({
+        ...initialState,
+        email: form.email,
+        isSignInError: true,
+        signInErrorMessage: 'Se ha producido un error a la hora de iniciar sesión, por favor, intentelo mas tarde.'
+      });
+    }
   };
 
   return (
@@ -98,7 +124,9 @@ export const SignIn: React.FC = () => {
           }}
           onBlur={() => checkIsValidEmail()}
           onChange={e => setForm({ ...form, email: e.target.value })}
-          onFocus={() => setForm(prevForm => ({ ...prevForm, errorEmail: '', isLoginError: false }))}
+          onFocus={() =>
+            setForm(prevForm => ({ ...prevForm, errorEmail: '', isSignInError: false, signInErrorMessage: '' }))
+          }
           type="text"
           value={form.email}
           variant="outlined"
@@ -125,11 +153,19 @@ export const SignIn: React.FC = () => {
           }}
           onBlur={() => checkIsValidPassword()}
           onChange={e => setForm({ ...form, password: e.target.value })}
-          onFocus={() => setForm(prevForm => ({ ...prevForm, errorPassword: '', isLoginError: false }))}
+          onFocus={() =>
+            setForm(prevForm => ({ ...prevForm, errorPassword: '', isSignInError: false, signInErrorMessage: '' }))
+          }
           type={showPassword ? 'text' : 'password'}
           value={form.password}
           variant="outlined"
         />
+
+        <Collapse in={form.isSignInError}>
+          <Alert variant="filled" severity="error">
+            {form.signInErrorMessage}
+          </Alert>
+        </Collapse>
 
         <Button color="primary" type="submit" variant="contained" sx={{ padding: '1rem' }}>
           Iniciar Sesión
