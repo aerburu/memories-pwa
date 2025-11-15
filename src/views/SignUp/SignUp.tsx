@@ -22,6 +22,7 @@ interface State {
   errorEmail: string;
   errorPassword: string;
   isSignUpError?: boolean;
+  signUpErrorMessage: string;
 }
 
 const initialState: State = {
@@ -31,7 +32,8 @@ const initialState: State = {
   errorUsername: '',
   errorEmail: '',
   errorPassword: '',
-  isSignUpError: false
+  isSignUpError: false,
+  signUpErrorMessage: ''
 };
 
 export const SignUp: React.FC = () => {
@@ -100,14 +102,33 @@ export const SignUp: React.FC = () => {
     }
 
     try {
-      await supabaseClient.auth.signUp({
+      const { error } = await supabaseClient.auth.signUp({
         email: form.email,
         password: form.password,
         options: { data: { display_name: form.username, username: form.username } }
       });
+
+      if (error?.message == 'User already registered') {
+        setForm({
+          ...initialState,
+          username: form.username,
+          email: form.email,
+          isSignUpError: true,
+          signUpErrorMessage: 'El correo electrónico del usuario ya existe.'
+        });
+        return;
+      }
+
       navigate(routes.SIGNIN, { replace: true });
     } catch {
-      setForm({ ...initialState, username: form.username, email: form.email, isSignUpError: true });
+      setForm({
+        ...initialState,
+        username: form.username,
+        email: form.email,
+        isSignUpError: true,
+        signUpErrorMessage:
+          'Se ha producido un error a la hora de crear la cuenta del usuario, por favor, intentelo mas tarde.'
+      });
     }
   };
 
@@ -131,7 +152,9 @@ export const SignUp: React.FC = () => {
           }}
           onBlur={() => checkIsValidUsername()}
           onChange={e => setForm({ ...form, username: e.target.value })}
-          onFocus={() => setForm(prevForm => ({ ...prevForm, errorUsername: '', isSignUpError: false }))}
+          onFocus={() =>
+            setForm(prevForm => ({ ...prevForm, errorUsername: '', isSignUpError: false, signUpErrorMessage: '' }))
+          }
           type="text"
           value={form.username}
           variant="outlined"
@@ -152,7 +175,9 @@ export const SignUp: React.FC = () => {
           }}
           onBlur={() => checkIsValidEmail()}
           onChange={e => setForm({ ...form, email: e.target.value })}
-          onFocus={() => setForm(prevForm => ({ ...prevForm, errorEmail: '', isSignUpError: false }))}
+          onFocus={() =>
+            setForm(prevForm => ({ ...prevForm, errorEmail: '', isSignUpError: false, signUpErrorMessage: '' }))
+          }
           type="text"
           value={form.email}
           variant="outlined"
@@ -179,7 +204,9 @@ export const SignUp: React.FC = () => {
           }}
           onBlur={() => checkIsValidPassword()}
           onChange={e => setForm({ ...form, password: e.target.value })}
-          onFocus={() => setForm(prevForm => ({ ...prevForm, errorPassword: '', isSignUpError: false }))}
+          onFocus={() =>
+            setForm(prevForm => ({ ...prevForm, errorPassword: '', isSignUpError: false, signUpErrorMessage: '' }))
+          }
           type={showPassword ? 'text' : 'password'}
           value={form.password}
           variant="outlined"
@@ -187,7 +214,7 @@ export const SignUp: React.FC = () => {
 
         <Collapse in={form.isSignUpError}>
           <Alert variant="filled" severity="error">
-            Se ha producido un error a la hora de crear la cuenta del usuario, por favor, intentelo mas tarde.
+            {form.signUpErrorMessage}
           </Alert>
         </Collapse>
 
