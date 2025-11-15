@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { HashRouter as Router, Route, Routes } from 'react-router';
+import { BrowserRouter as Router, Route, Routes } from 'react-router';
 
 import { ThemeProvider, CssBaseline } from '@mui/material';
 

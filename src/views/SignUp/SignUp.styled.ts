@@ -4,14 +4,6 @@ export const Title = styled.h1`
   color: #fff;
 `;
 
-export const FormErrorMessage = styled.div`
-  display: flex;
-  justify-content: center;
-  color: red;
-  font-size: 0.8rem;
-  margin: 1rem 0;
-`;
-
 export const SignInWrapper = styled.div`
   display: flex;
   justify-content: center;

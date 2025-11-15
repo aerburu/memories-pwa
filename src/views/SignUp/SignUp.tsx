@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 
-import { Box, Button, InputAdornment, Link, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, Collapse, InputAdornment, Link, TextField, Typography } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import PersonIcon from '@mui/icons-material/Person';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+
+import { supabaseClient } from 'infrastructure/supabase/supabaseClient';
 
 import { routes } from 'views/_conf';
 
@@ -97,7 +99,16 @@ export const SignUp: React.FC = () => {
       return;
     }
 
-    console.log('OK');
+    try {
+      await supabaseClient.auth.signUp({
+        email: form.email,
+        password: form.password,
+        options: { data: { display_name: form.username, username: form.username } }
+      });
+      navigate(routes.SIGNIN, { replace: true });
+    } catch {
+      setForm({ ...initialState, username: form.username, email: form.email, isSignUpError: true });
+    }
   };
 
   return (
@@ -120,7 +131,7 @@ export const SignUp: React.FC = () => {
           }}
           onBlur={() => checkIsValidUsername()}
           onChange={e => setForm({ ...form, username: e.target.value })}
-          onFocus={() => setForm(prevForm => ({ ...prevForm, errorUsername: '', isLoginError: false }))}
+          onFocus={() => setForm(prevForm => ({ ...prevForm, errorUsername: '', isSignUpError: false }))}
           type="text"
           value={form.username}
           variant="outlined"
@@ -141,7 +152,7 @@ export const SignUp: React.FC = () => {
           }}
           onBlur={() => checkIsValidEmail()}
           onChange={e => setForm({ ...form, email: e.target.value })}
-          onFocus={() => setForm(prevForm => ({ ...prevForm, errorEmail: '', isLoginError: false }))}
+          onFocus={() => setForm(prevForm => ({ ...prevForm, errorEmail: '', isSignUpError: false }))}
           type="text"
           value={form.email}
           variant="outlined"
@@ -168,11 +179,17 @@ export const SignUp: React.FC = () => {
           }}
           onBlur={() => checkIsValidPassword()}
           onChange={e => setForm({ ...form, password: e.target.value })}
-          onFocus={() => setForm(prevForm => ({ ...prevForm, errorPassword: '', isLoginError: false }))}
+          onFocus={() => setForm(prevForm => ({ ...prevForm, errorPassword: '', isSignUpError: false }))}
           type={showPassword ? 'text' : 'password'}
           value={form.password}
           variant="outlined"
         />
+
+        <Collapse in={form.isSignUpError}>
+          <Alert variant="filled" severity="error">
+            Se ha producido un error a la hora de crear la cuenta del usuario, por favor, intentelo mas tarde.
+          </Alert>
+        </Collapse>
 
         <Button color="primary" type="submit" variant="contained" sx={{ padding: '1rem' }}>
           Registrate
