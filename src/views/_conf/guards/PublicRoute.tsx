@@ -1,7 +1,7 @@
 import { JSX } from 'react';
 import { Navigate } from 'react-router';
 
-import { useAuth } from 'views/_functions/contexts/AuthContext';
+import { useAuth } from 'views/_functions/hooks/useAuth';
 
 import { routes as pahtRoutes } from 'views/_conf/routes';
 
@@ -10,9 +10,14 @@ interface PublicRouteProps {
 }
 
 export const PublicRoute: React.FC<PublicRouteProps> = ({ element }) => {
-  const { session } = useAuth();
+  const { isLoading, isLoggedIn } = useAuth();
 
-  if (session) {
+  // Show a loading state while auth is being resolved
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isLoggedIn) {
     return <Navigate to={pahtRoutes.PROFILE} replace />;
   }
 

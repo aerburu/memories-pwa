@@ -1,7 +1,7 @@
 import { JSX } from 'react';
 import { Navigate, useLocation } from 'react-router';
 
-import { useAuth } from 'views/_functions/contexts/AuthContext';
+import { useAuth } from 'views/_functions/hooks/useAuth';
 
 import { routes as pahtRoutes } from 'views/_conf/routes';
 
@@ -11,9 +11,15 @@ interface PrivateRouteProps {
 
 export const PrivateRoute: React.FC<PrivateRouteProps> = ({ element }) => {
   const location = useLocation();
-  const { session } = useAuth();
+  const { isLoading, isLoggedIn } = useAuth();
 
-  if (!session) {
+  // Show a loading state while auth is being resolved
+  if (isLoading) {
+    return <div>Loading...</div>; // Puedes reemplazar con tu componente de spinner
+  }
+
+  // TODO: Check if we need to verify against the auth token
+  if (!isLoggedIn) {
     return <Navigate state={{ redirectTo: location.pathname }} to={pahtRoutes.SIGNIN} replace />;
   }
 
