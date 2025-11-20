@@ -8,7 +8,9 @@ import PersonIcon from '@mui/icons-material/Person';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
-import { supabaseClient } from 'infrastructure/supabase/supabaseClient';
+import { useAuth } from 'views/_functions/hooks/useAuth';
+
+import { supabaseErrorMessages } from 'views/_functions/utils/supabaseErrorMessages';
 
 import { routes } from 'views/_conf';
 
@@ -40,6 +42,7 @@ export const SignUp: React.FC = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState<State>(initialState);
   const [showPassword, setShowPassword] = useState(false);
+  const { signUp } = useAuth();
 
   const onSignIn = () => navigate(routes.SIGNIN);
 
@@ -102,32 +105,33 @@ export const SignUp: React.FC = () => {
     }
 
     try {
-      const { error } = await supabaseClient.auth.signUp({
-        email: form.email,
-        password: form.password,
-        options: { data: { display_name: form.username, username: form.username } }
-      });
+      const error = await signUp(form.email, form.password, form.username);
 
-      if (error?.message == 'User already registered') {
+      if (error) {
+        const translatedMessage =
+          supabaseErrorMessages[error.message] ||
+          'Se ha producido un error a la hora de crear la cuenta del usuario, por favor, intentelo mas tarde.';
         setForm({
           ...initialState,
           username: form.username,
           email: form.email,
           isSignUpError: true,
-          signUpErrorMessage: 'El correo electrónico del usuario ya existe.'
+          signUpErrorMessage: translatedMessage
         });
         return;
       }
 
       navigate(routes.SIGNIN, { replace: true });
-    } catch {
+    } catch (error) {
+      console.error('Signup unexpected error:', error);
+
       setForm({
         ...initialState,
         username: form.username,
         email: form.email,
         isSignUpError: true,
         signUpErrorMessage:
-          'Se ha producido un error a la hora de crear la cuenta del usuario, por favor, intentelo mas tarde.'
+          'Ha ocurrido un error inesperado. Por favor, comprueba tu conexión a internet o inténtalo más tarde.'
       });
     }
   };

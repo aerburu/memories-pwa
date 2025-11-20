@@ -7,7 +7,7 @@ import { supabaseClient } from 'infrastructure/supabase/supabaseClient';
 export interface AuthContextType {
   session: Session | null;
   isLoading: boolean;
-  signUp: (email: string, password: string) => Promise<AuthError | null>;
+  signUp: (email: string, password: string, username: string) => Promise<AuthError | null>;
   signIn: (email: string, password: string) => Promise<AuthError | null>;
   signOut: () => Promise<AuthError | null>;
   forgotPassword: (email: string) => Promise<AuthError | null>;
@@ -17,7 +17,7 @@ export interface AuthContextType {
 const AuthContextInitialState: AuthContextType = {
   session: null,
   isLoading: true,
-  signUp: async (_email: string, _password: string) => Promise.resolve(null),
+  signUp: async (_email: string, _password: string, _username: string) => Promise.resolve(null),
   signIn: async (_email: string, _password: string) => Promise.resolve(null),
   signOut: async () => Promise.resolve(null),
   forgotPassword: async (_email: string) => Promise.resolve(null),
@@ -66,8 +66,13 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
   }, []);
 
   // TODO: Consider including {data, error} in the future; currently I only use the error, so that's sufficient.
-  const signUp = async (email: string, password: string) => {
-    const { error } = await supabaseClient.auth.signUp({ email, password });
+  const signUp = async (email: string, password: string, username: string) => {
+    const { error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: { data: { display_name: username, username: username } }
+    });
+
     return error;
   };
 
