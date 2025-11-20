@@ -6,7 +6,12 @@ import LockIcon from '@mui/icons-material/Lock';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
-import { supabaseClient } from 'infrastructure/supabase/supabaseClient';
+import { useAuth } from 'views/_functions/hooks/useAuth';
+
+import {
+  supabaseGenericErrorMessage,
+  supabaseResetPasswordGenericMessage
+} from 'views/_functions/utils/supabaseErrorMessages';
 
 import { routes } from 'views/_conf';
 
@@ -16,20 +21,23 @@ interface State {
   password: string;
   errorPassword: string;
   isResetPasswordError?: boolean;
-  isResetPasswordErrorSuccess?: boolean;
+  isResetPasswordSuccess?: boolean;
+  isResetPasswordErrorMessage: string;
 }
 
 const initialState: State = {
   password: '',
   errorPassword: '',
   isResetPasswordError: false,
-  isResetPasswordErrorSuccess: false
+  isResetPasswordSuccess: false,
+  isResetPasswordErrorMessage: ''
 };
 
 export const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState<State>(initialState);
   const [showPassword, setShowPassword] = useState(false);
+  const { resetPassword } = useAuth();
 
   const handleClickShowPassword = () => setShowPassword(show => !show);
 
@@ -62,16 +70,28 @@ export const ResetPassword: React.FC = () => {
     }
 
     try {
-      await supabaseClient.auth.updateUser({ password: form.password });
+      const error = await resetPassword(form.password);
+
+      if (error) {
+        setForm({
+          ...initialState,
+          isResetPasswordError: true,
+          isResetPasswordErrorMessage: supabaseResetPasswordGenericMessage
+        });
+      }
 
       // Hide successfully reset password message after 2 seconds and redirect to signin page.
-      setForm({ ...form, isResetPasswordErrorSuccess: true });
+      setForm({ ...form, isResetPasswordSuccess: true });
       setTimeout(() => {
-        setForm({ ...form, isResetPasswordErrorSuccess: false });
+        setForm({ ...form, isResetPasswordSuccess: false });
         navigate(routes.SIGNIN, { replace: true });
       }, 2000);
     } catch {
-      setForm({ ...initialState, isResetPasswordError: true });
+      setForm({
+        ...initialState,
+        isResetPasswordError: true,
+        isResetPasswordErrorMessage: supabaseGenericErrorMessage
+      });
     }
   };
 
@@ -104,13 +124,20 @@ export const ResetPassword: React.FC = () => {
           }}
           onBlur={() => checkIsValidPassword()}
           onChange={e => setForm({ ...form, password: e.target.value })}
-          onFocus={() => setForm(prevForm => ({ ...prevForm, errorPassword: '', isResetPasswordError: false }))}
+          onFocus={() =>
+            setForm(prevForm => ({
+              ...prevForm,
+              errorPassword: '',
+              isResetPasswordError: false,
+              isResetPasswordErrorMessage: ''
+            }))
+          }
           type={showPassword ? 'text' : 'password'}
           value={form.password}
           variant="outlined"
         />
 
-        <Collapse in={form.isResetPasswordErrorSuccess}>
+        <Collapse in={form.isResetPasswordSuccess}>
           <Alert variant="filled" severity="success" sx={{ color: '#fff' }}>
             Constraseña restablecida correctamente.
           </Alert>
@@ -118,7 +145,7 @@ export const ResetPassword: React.FC = () => {
 
         <Collapse in={form.isResetPasswordError}>
           <Alert variant="filled" severity="error">
-            Se ha producido un error a la hora de restablecer la contraseña, por favor, intentelo mas tarde.
+            {form.isResetPasswordErrorMessage}
           </Alert>
         </Collapse>
 

@@ -20,3 +20,18 @@ export const supabaseErrorMessages: Record<string, string> = {
   'Password should contain at least one lowercase letter': 'La contraseña debe contener al menos una letra minúscula',
   'Password should contain at least one special character': 'La contraseña debe contener al menos un carácter especial'
 };
+
+export const supabaseSignUpGenericMessage: string =
+  'Se ha producido un error a la hora de crear la cuenta del usuario, por favor, intentelo mas tarde.';
+
+export const supabaseSignInGenericMessage: string =
+  'Se ha producido un error a la hora de iniciar sesión, por favor, intentelo mas tarde.';
+
+export const supabaseForgotPasswordGenericMessage: string =
+  'Se ha producido un error a la hora de enviar el correo electrónico para poder restablecer la contraseña, por favor, intentelo mas tarde.';
+
+export const supabaseResetPasswordGenericMessage: string =
+  'Se ha producido un error a la hora de restablecer la contraseña, por favor, intentelo mas tarde.';
+
+export const supabaseGenericErrorMessage: string =
+  'Ha ocurrido un error inesperado. Por favor, comprueba tu conexión a internet o inténtalo más tarde.';

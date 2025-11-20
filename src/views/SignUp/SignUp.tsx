@@ -10,7 +10,11 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 import { useAuth } from 'views/_functions/hooks/useAuth';
 
-import { supabaseErrorMessages } from 'views/_functions/utils/supabaseErrorMessages';
+import {
+  supabaseErrorMessages,
+  supabaseGenericErrorMessage,
+  supabaseSignUpGenericMessage
+} from 'views/_functions/utils/supabaseErrorMessages';
 
 import { routes } from 'views/_conf';
 
@@ -108,9 +112,7 @@ export const SignUp: React.FC = () => {
       const error = await signUp(form.email, form.password, form.username);
 
       if (error) {
-        const translatedMessage =
-          supabaseErrorMessages[error.message] ||
-          'Se ha producido un error a la hora de crear la cuenta del usuario, por favor, intentelo mas tarde.';
+        const translatedMessage = supabaseErrorMessages[error.message] || supabaseSignUpGenericMessage;
         setForm({
           ...initialState,
           username: form.username,
@@ -130,8 +132,7 @@ export const SignUp: React.FC = () => {
         username: form.username,
         email: form.email,
         isSignUpError: true,
-        signUpErrorMessage:
-          'Ha ocurrido un error inesperado. Por favor, comprueba tu conexión a internet o inténtalo más tarde.'
+        signUpErrorMessage: supabaseGenericErrorMessage
       });
     }
   };

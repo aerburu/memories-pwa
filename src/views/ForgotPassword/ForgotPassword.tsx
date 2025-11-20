@@ -4,7 +4,12 @@ import { useNavigate } from 'react-router';
 import { Alert, Box, Button, Collapse, InputAdornment, Link, TextField, Typography } from '@mui/material';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 
-import { supabaseClient } from 'infrastructure/supabase/supabaseClient';
+import { useAuth } from 'views/_functions/hooks/useAuth';
+
+import {
+  supabaseGenericErrorMessage,
+  supabaseForgotPasswordGenericMessage
+} from 'views/_functions/utils/supabaseErrorMessages';
 
 import { routes } from 'views/_conf';
 
@@ -15,18 +20,21 @@ interface State {
   errorEmail: string;
   isForgotPasswordError?: boolean;
   isForgotPasswordSuccess?: boolean;
+  isForgotPasswordErrorMessage: string;
 }
 
 const initialState: State = {
   email: '',
   errorEmail: '',
   isForgotPasswordError: false,
-  isForgotPasswordSuccess: false
+  isForgotPasswordSuccess: false,
+  isForgotPasswordErrorMessage: ''
 };
 
 export const ForgotPassword: React.FC = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState<State>(initialState);
+  const { forgotPassword } = useAuth();
 
   const onSignIn = () => navigate(routes.SIGNIN);
 
@@ -56,7 +64,15 @@ export const ForgotPassword: React.FC = () => {
     }
 
     try {
-      await supabaseClient.auth.resetPasswordForEmail(form.email);
+      const error = await forgotPassword(form.email);
+
+      if (error) {
+        setForm({
+          ...initialState,
+          isForgotPasswordError: true,
+          isForgotPasswordErrorMessage: supabaseForgotPasswordGenericMessage
+        });
+      }
 
       // Hide email alert sent after 3 seconds.
       setForm({ ...form, isForgotPasswordSuccess: true });
@@ -64,7 +80,11 @@ export const ForgotPassword: React.FC = () => {
         setForm({ ...form, isForgotPasswordSuccess: false });
       }, 3000);
     } catch {
-      setForm({ ...initialState, isForgotPasswordError: true });
+      setForm({
+        ...initialState,
+        isForgotPasswordError: true,
+        isForgotPasswordErrorMessage: supabaseGenericErrorMessage
+      });
     }
   };
 
@@ -93,7 +113,14 @@ export const ForgotPassword: React.FC = () => {
           }}
           onBlur={() => checkIsValidEmail()}
           onChange={e => setForm({ ...form, email: e.target.value })}
-          onFocus={() => setForm(prevForm => ({ ...prevForm, errorEmail: '', isForgotPasswordError: false }))}
+          onFocus={() =>
+            setForm(prevForm => ({
+              ...prevForm,
+              errorEmail: '',
+              isForgotPasswordError: false,
+              isForgotPasswordErrorMessage: ''
+            }))
+          }
           type="text"
           value={form.email}
           variant="outlined"
@@ -108,8 +135,7 @@ export const ForgotPassword: React.FC = () => {
 
         <Collapse in={form.isForgotPasswordError}>
           <Alert variant="filled" severity="error">
-            Se ha producido un error a la hora de enviar el correo electrónico para poder restablecer la contraseña, por
-            favor, intentelo mas tarde.
+            {form.isForgotPasswordErrorMessage}
           </Alert>
         </Collapse>
 

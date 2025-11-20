@@ -8,7 +8,13 @@ import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
-import { supabaseClient } from 'infrastructure/supabase/supabaseClient';
+import { useAuth } from 'views/_functions/hooks/useAuth';
+
+import {
+  supabaseErrorMessages,
+  supabaseGenericErrorMessage,
+  supabaseSignInGenericMessage
+} from 'views/_functions/utils/supabaseErrorMessages';
 
 import { routes } from 'views/_conf';
 
@@ -38,6 +44,7 @@ export const SignIn: React.FC = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState<State>(initialState);
   const [showPassword, setShowPassword] = useState(false);
+  const { signIn } = useAuth();
 
   const onForgotPassword = () => navigate(routes.FORGOT_PASSWORD);
 
@@ -78,17 +85,15 @@ export const SignIn: React.FC = () => {
     }
 
     try {
-      const { error } = await supabaseClient.auth.signInWithPassword({
-        email: form.email,
-        password: form.password
-      });
+      const error = await signIn(form.email, form.password);
 
-      if (error?.message == 'Invalid login credentials') {
+      if (error) {
+        const translatedMessage = supabaseErrorMessages[error.message] || supabaseSignInGenericMessage;
         setForm({
           ...initialState,
           email: form.email,
           isSignInError: true,
-          signInErrorMessage: 'El correo electrónico del usuario o la contraseña son incorrectos.'
+          signInErrorMessage: translatedMessage
         });
         return;
       }
@@ -99,7 +104,7 @@ export const SignIn: React.FC = () => {
         ...initialState,
         email: form.email,
         isSignInError: true,
-        signInErrorMessage: 'Se ha producido un error a la hora de iniciar sesión, por favor, intentelo mas tarde.'
+        signInErrorMessage: supabaseGenericErrorMessage
       });
     }
   };
