@@ -5,13 +5,15 @@ import { useAuth } from 'views/_functions/hooks/useAuth';
 
 import { routes as pahtRoutes } from 'views/_conf/routes';
 
+import { PrivateMainLayout } from 'views/_components/PrivateMainLayout';
+
 interface PrivateRouteProps {
   element: JSX.Element;
 }
 
 export const PrivateRoute: React.FC<PrivateRouteProps> = ({ element }) => {
   const location = useLocation();
-  const { isLoading, isLoggedIn } = useAuth();
+  const { isLoading, isAuthenticated } = useAuth();
 
   // Show a loading state while auth is being resolved
   if (isLoading) {
@@ -19,9 +21,9 @@ export const PrivateRoute: React.FC<PrivateRouteProps> = ({ element }) => {
   }
 
   // TODO: Check if we need to verify against the auth token
-  if (!isLoggedIn) {
+  if (!isAuthenticated) {
     return <Navigate state={{ redirectTo: location.pathname }} to={pahtRoutes.SIGNIN} replace />;
   }
 
-  return element;
+  return <PrivateMainLayout>{element}</PrivateMainLayout>;
 };

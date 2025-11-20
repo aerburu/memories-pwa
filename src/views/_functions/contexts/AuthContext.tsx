@@ -1,19 +1,27 @@
 import { createContext, useEffect, useMemo, useRef, useState } from 'react';
 
-import type { Session } from '@supabase/supabase-js';
+import { AuthError, Session } from '@supabase/supabase-js';
 
 import { supabaseClient } from 'infrastructure/supabase/supabaseClient';
 
 export interface AuthContextType {
   session: Session | null;
   isLoading: boolean;
-  signOut: () => Promise<void>;
+  signUp: (email: string, password: string) => Promise<AuthError | null>;
+  signIn: (email: string, password: string) => Promise<AuthError | null>;
+  signOut: () => Promise<AuthError | null>;
+  forgotPassword: (email: string) => Promise<AuthError | null>;
+  resetPassword: (password: string) => Promise<AuthError | null>;
 }
 
 const AuthContextInitialState: AuthContextType = {
   session: null,
   isLoading: true,
-  signOut: async () => {}
+  signUp: async (_email: string, _password: string) => Promise.resolve(null),
+  signIn: async (_email: string, _password: string) => Promise.resolve(null),
+  signOut: async () => Promise.resolve(null),
+  forgotPassword: async (_email: string) => Promise.resolve(null),
+  resetPassword: async (_password: string) => Promise.resolve(null)
 };
 
 export const AuthContext = createContext<AuthContextType>(AuthContextInitialState);
@@ -57,15 +65,37 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
     return () => listener.subscription.unsubscribe();
   }, []);
 
+  // TODO: Consider including {data, error} in the future; currently I only use the error, so that's sufficient.
+  const signUp = async (email: string, password: string) => {
+    const { error } = await supabaseClient.auth.signUp({ email, password });
+    return error;
+  };
+
+  const signIn = async (email: string, password: string) => {
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    return error;
+  };
+
   const signOut = async () => {
-    setIsLoading(true);
-    await supabaseClient.auth.signOut();
-    setSession(null);
-    setIsLoading(false);
+    const { error } = await supabaseClient.auth.signOut();
+    return error;
+  };
+
+  const forgotPassword = async (email: string) => {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+    return error;
+  };
+
+  const resetPassword = async (password: string) => {
+    const { error } = await supabaseClient.auth.updateUser({ password: password });
+    return error;
   };
 
   // Memoize context value to avoid unnecessary re-renders in all components that consume this provider. Only create a new object when `session` or `isLoading` changes
-  const value = useMemo(() => ({ session, isLoading, signOut }), [session, isLoading]);
+  const value = useMemo(
+    () => ({ session, isLoading, signUp, signIn, signOut, forgotPassword, resetPassword }),
+    [session, isLoading]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

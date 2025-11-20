@@ -4,7 +4,7 @@ import { Navigate } from 'react-router';
 import { routes as pathRoutes } from './routes';
 
 import { PrivateRoute } from './guards/PrivateRoute';
-import { PublicRoute } from './guards/PublicRoute';
+//import { PublicRoute } from './guards/PublicRoute';
 
 const ForgotPassword = lazy(() =>
   import('views/ForgotPassword').then(({ ForgotPassword }) => ({ default: ForgotPassword }))
@@ -34,20 +34,13 @@ const elementsRoutes = {
   SIGNUP: <SignUp />
 };
 
+// TODO: PublicRoute para redirigir si estoy autenticado y voy a signin, signup etc
 export const routesConfig = [
   /* Fallback for any unknown route */
   { name: 'NOT_FOUND', path: '*', element: <Navigate to={pathRoutes.SIGNIN} replace /> },
-  {
-    name: RouteNames.FORGOT_PASSWORD,
-    path: pathRoutes.FORGOT_PASSWORD,
-    element: <PublicRoute element={elementsRoutes.FORGOT_PASSWORD} />
-  },
+  { name: RouteNames.FORGOT_PASSWORD, path: pathRoutes.FORGOT_PASSWORD, element: elementsRoutes.FORGOT_PASSWORD },
   { name: RouteNames.PROFILE, path: pathRoutes.PROFILE, element: <PrivateRoute element={elementsRoutes.PROFILE} /> },
-  {
-    name: RouteNames.RESET_PASSWORD,
-    path: pathRoutes.RESET_PASSWORD,
-    element: <PublicRoute element={elementsRoutes.RESET_PASSWORD} />
-  },
-  { name: RouteNames.SIGNIN, path: pathRoutes.SIGNIN, element: <PublicRoute element={elementsRoutes.SIGNIN} /> },
-  { name: RouteNames.SIGNUP, path: pathRoutes.SIGNUP, element: <PublicRoute element={elementsRoutes.SIGNUP} /> }
+  { name: RouteNames.RESET_PASSWORD, path: pathRoutes.RESET_PASSWORD, element: elementsRoutes.RESET_PASSWORD },
+  { name: RouteNames.SIGNIN, path: pathRoutes.SIGNIN, element: elementsRoutes.SIGNIN },
+  { name: RouteNames.SIGNUP, path: pathRoutes.SIGNUP, element: elementsRoutes.SIGNUP }
 ];
