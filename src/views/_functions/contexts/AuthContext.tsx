@@ -17,11 +17,11 @@ export interface AuthContextType {
 const AuthContextInitialState: AuthContextType = {
   session: null,
   isLoading: true,
-  signUp: async (_email: string, _password: string, _username: string) => Promise.resolve(null),
-  signIn: async (_email: string, _password: string) => Promise.resolve(null),
-  signOut: async () => Promise.resolve(null),
-  forgotPassword: async (_email: string) => Promise.resolve(null),
-  resetPassword: async (_password: string) => Promise.resolve(null)
+  signUp: async () => null,
+  signIn: async () => null,
+  signOut: async () => null,
+  forgotPassword: async () => null,
+  resetPassword: async () => null
 };
 
 export const AuthContext = createContext<AuthContextType>(AuthContextInitialState);
@@ -36,16 +36,7 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
   // Used to show loading state until authentication is resolved
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Prevent multiple initializations in React Strict Mode. React might trigger useEffect twice in development
-  const initialized = useRef(false);
-
   useEffect(() => {
-    // If already initialized, avoid running logic twice
-    if (initialized.current) {
-      return;
-    }
-    initialized.current = true;
-
     //Get the current session on app load. This prevents "flicker" when refreshing the page.
     const getInitialSession = async () => {
       const { data } = await supabaseClient.auth.getSession();
@@ -56,8 +47,8 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
     getInitialSession();
 
     // Listen for authentication state changes (login, logout, token refresh). Only update the session if it actually changes to avoid unnecessary renders.
-    const { data: listener } = supabaseClient.auth.onAuthStateChange((_event, newSession) => {
-      setSession(prev => (prev?.user.id === newSession?.user.id ? prev : newSession));
+    const { data: listener } = supabaseClient.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
       setIsLoading(false);
     });
 
